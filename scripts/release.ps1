@@ -204,25 +204,62 @@ if (-not $Publish) {
 
 Write-Host ''
 Write-Host '--- Committing, tagging and publishing ---' -ForegroundColor Cyan
-Push-Location $repoRoot
-try {
-    & $gitExe -C $repoRoot add -A
-    & $gitExe -C $repoRoot commit -m "release $($next.Tag)" 2>&1 | Out-Host
-    if ($LASTEXITCODE -ne 0) {
-        Write-Warning 'Nothing to commit, or commit failed - continuing to tag.'
-    }
-    & $gitExe -C $repoRoot tag $next.Tag 2>&1 | Out-Host
-    & $gitExe -C $repoRoot push origin HEAD 2>&1 | Out-Host
-    & $gitExe -C $repoRoot push origin $next.Tag 2>&1 | Out-Host
 
-    $body = if ($Notes) { $Notes } else { "Auto-released from release.ps1 ($resolved change)." }
-    $gh = 'C:\Program Files\GitHub CLI\gh.exe'
-    & $gh release create $next.Tag $apk `
-        --repo jtnnazzal24-lab/alk-app `
-        --title "alk health $($next.Tag)" `
-        --notes $body 2>&1 | Out-Host
-    if ($LASTEXITCODE -ne 0) { throw "gh release create failed (exit $LASTEXITCODE)" }
-} finally { Pop-Location }
+# git/gh legitimately write progress to stderr. Under
+# $ErrorActionPreference = 'Stop' PowerShell promotes that to a terminating
+# NativeCommandError, which previously aborted mid-publish (leaving the tag
+# and release uncreated). Relax it for this block only, then restore.
+$prevEAP = $ErrorActionPreference
+$ErrorActionPreference = 'Continue'
+try {
+    Push-Location $repoRoot
+    try {
+        & $gitExe -C $repoRoot add -A
+        & $gitExe -C $repoRoot commit -m "release $($next.Tag)"
+        if ($LASTEXITCODE -ne 0) {
+            Write-Warning 'Nothing to commit, or commit failed - continuing to tag.'
+        }
+
+        $haveTag = Invoke-GitQuiet @('-C', $repoRoot, 'tag', '-l', $next.Tag)
+        if (($haveTag | Measure-Object).Count -eq 0) {
+            & $gitExe -C $repoRoot tag $next.Tag
+            if ($LASTEXITCODE -ne 0) { throw "git tag failed (exit $LASTEXITCODE)" }
+        } else {
+            Write-Host "  tag $($next.Tag) already exists - reusing" -ForegroundColor DarkGray
+        }
+
+        & $gitExe -C $repoRoot push origin HEAD
+        if ($LASTEXITCODE -ne 0) { throw "git push HEAD failed (exit $LASTEXITCODE)" }
+
+        & $gitExe -C $repoRoot push origin $next.Tag
+        if ($LASTEXITCODE -ne 0) { throw "git push tag failed (exit $LASTEXITCODE)" }
+
+        # Arabic release notes must be written as UTF-8 (no BOM) and passed
+        # via --notes-file; a plain --notes argument is mangled by the
+        # Windows console into mojibake.
+        $body = if ($Notes) { $Notes } else { "Auto-released from release.ps1 ($resolved change)." }
+        $notesPath = Join-Path ([System.IO.Path]::GetTempPath()) 'alk-release-notes.md'
+        $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+        [System.IO.File]::WriteAllText($notesPath, ($body -replace "`r`n", "`n"), $utf8NoBom)
+
+        $gh = 'C:\Program Files\GitHub CLI\gh.exe'
+        $null = & $gh release view $next.Tag --repo jtnnazzal24-lab/alk-app --json tagName 2>$null
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "  release $next.Tag already exists - updating notes" -ForegroundColor DarkGray
+            & $gh release edit $next.Tag --repo jtnnazzal24-lab/alk-app --notes-file $notesPath
+            if ($LASTEXITCODE -ne 0) { throw "gh release edit failed (exit $LASTEXITCODE)" }
+        } else {
+            & $gh release create $next.Tag $apk `
+                --repo jtnnazzal24-lab/alk-app `
+                --title "alk health $($next.Tag)" `
+                --notes-file $notesPath
+            if ($LASTEXITCODE -ne 0) { throw "gh release create failed (exit $LASTEXITCODE)" }
+        }
+        Remove-Item $notesPath -ErrorAction SilentlyContinue
+    } finally { Pop-Location }
+} finally {
+    $ErrorActionPreference = $prevEAP
+}
 
 Write-Host ''
 Write-Host "=== Published $($next.Tag) ===" -ForegroundColor Green

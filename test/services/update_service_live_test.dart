@@ -179,12 +179,41 @@ void main() {
       expect(int.parse(head.headers['content-length'] ?? '0'), greaterThan(0));
     }, skip: _skipReason);
 
-    test('the currently installed build is NOT offered an update', () async {
-      // This is the state that makes the button report "you are up to date".
-      final info = await checkAs('1.0.1');
-      expect(info, isNull,
-          reason: 'Installed 1.0.1 vs published v1.0.0 -> no update is '
-              'correct. Publish a v1.0.1 release to close the gap.');
+    test('the published version itself sees no update, older ones do',
+        () async {
+      // Dynamic so it stays valid as releases are published.
+      final res = await http
+          .get(
+            Uri.parse(UpdateService.latestReleaseApiUrl),
+            headers: const {'Accept': 'application/vnd.github+json'},
+          )
+          .timeout(const Duration(seconds: 20));
+      expect(res.statusCode, 200);
+      final json = jsonDecode(res.body) as Map<String, dynamic>;
+      final published = UpdateService.parseGithubRelease(json)!.latestVersion;
+
+      // Installed == published -> "you are up to date".
+      expect(await checkAs(published), isNull,
+          reason: 'An install at exactly $published must report up to date.');
+
+      // Installed below published -> an update IS offered (the real flow).
+      final seg = published.split('.').map(int.parse).toList();
+      String below;
+      if (seg.length > 2 && seg[2] > 0) {
+        below = '${seg[0]}.${seg[1]}.${seg[2] - 1}';
+      } else if (seg.length > 1 && seg[1] > 0) {
+        below = '${seg[0]}.${seg[1] - 1}.9';
+      } else if (seg[0] > 0) {
+        below = '${seg[0] - 1}.9.9';
+      } else {
+        below = '0.0.1';
+      }
+
+      final info = await checkAs(below);
+      expect(info, isNotNull,
+          reason: 'An install at $below must be offered $published.');
+      expect(info!.latestVersion, published);
+      expect(UpdateService.isAllowedUrl(info.downloadUrl), isTrue);
     }, skip: _skipReason);
   });
 }
