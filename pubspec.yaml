@@ -1,0 +1,91 @@
+name: alk_flutter
+description: "ALK — standalone medication & health companion (Flutter port of the React Native app, with full local-data migration)."
+publish_to: "none"
+version: 1.0.1+2
+
+environment:
+  sdk: ">=3.5.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # State management (Provider mirrors the RN Context-based store)
+  provider: ^6.1.2
+
+  # Local persistence — stores the SAME JSON schema as the RN app (sandy-health-local-v1)
+  shared_preferences: ^2.3.2
+  path_provider: ^2.1.4
+  path: ^1.9.0
+  sqflite: ^2.3.3+2
+
+  # Local notifications (medication dose reminders, exact alarms)
+  flutter_local_notifications: ^17.2.3
+  timezone: ^0.9.4
+  flutter_timezone: ^3.0.1
+
+  # Media & files
+  image_picker: ^1.1.2
+  share_plus: ^10.0.2
+  file_picker: ^8.1.2
+
+  # Voice (on-device TTS + speech recognition)
+  flutter_tts: ^4.0.2
+  speech_to_text: ^7.0.0
+
+  # Security & system
+  local_auth: ^2.2.0
+  # تخزين آمن للأسرار (Android Keystore / iOS Keychain): مفتاح DeepSeek
+  # ومفتاح تشفير ملف بيانات المريض — لا يبقى أي سرّ في SharedPreferences.
+  flutter_secure_storage: ^9.2.2
+  # تشفير AES-256-GCM لملف بيانات المريض على الجهاز.
+  cryptography: ^2.7.0
+  url_launcher: ^6.3.0
+  permission_handler: ^11.3.1
+  package_info_plus: ^8.3.0
+
+  # Internationalization & formatting (Arabic RTL first)
+  intl: ^0.20.2
+
+  # Charts for vitals trend
+  fl_chart: ^0.69.0
+
+  # HTTP client for optional DeepSeek AI chat (when an API key is provided)
+  http: ^1.2.2
+
+  # Health Connect (Android) — reads vitals from synced wearables
+  health: ^13.3.1
+
+  # Bluetooth LE — direct connection to certified chronic-disease meters
+  # (blood-pressure monitors, glucose meters, pulse oximeters) using the
+  # standard Bluetooth SIG GATT profiles.
+  flutter_blue_plus: ^1.32.12
+
+  translator: ^1.0.4+1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+  # توليد أيقونات التطبيق من assets/images/app_icon.png (شغّل: dart run flutter_launcher_icons)
+  flutter_launcher_icons: ^0.13.1
+
+flutter_launcher_icons:
+  image_path: "assets/images/app_icon.png"
+  android: true
+  ios: true
+  adaptive_icon_background: "#E6F4FE"
+  adaptive_icon_foreground: "assets/images/app_icon.png"
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/icon/
+    - assets/images/
+    # قاموس مفردات التطبيق (عربي) — يُقرأ عند تجهيز الترجمة للغات الجهاز الأخرى
+    - assets/source_dictionary.json
+
+

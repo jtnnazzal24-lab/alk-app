@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="voice_shortcut_short">المساعد الصوتي</string>
+    <string name="voice_shortcut_long">تحدّث مع ALK — المساعد الصوتي</string>
+</resources>

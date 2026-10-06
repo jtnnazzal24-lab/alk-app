@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Adaptive icon background — matches the original Expo app (app.config.ts adaptiveIcon.backgroundColor) -->
+    <color name="ic_launcher_background">#E6F4FE</color>
+</resources>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 12+: لا يُنسَخ ولا يُنقَل أي ملف أو تفضيل يحتوي بيانات المريض،
+     لا في النسخ السحابي ولا في النقل بين الأجهزة. -->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="file" path="alk-data/" />
+        <exclude domain="file" path="alk-medication-images/" />
+        <exclude domain="file" path="alk-medical-attachments/" />
+        <exclude domain="file" path="alk-dictionary/" />
+        <exclude domain="sharedpref" path="." />
+        <exclude domain="database" path="." />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="file" path="alk-data/" />
+        <exclude domain="file" path="alk-medication-images/" />
+        <exclude domain="file" path="alk-medical-attachments/" />
+        <exclude domain="file" path="alk-dictionary/" />
+        <exclude domain="sharedpref" path="." />
+        <exclude domain="database" path="." />
+    </device-transfer>
+</data-extraction-rules>

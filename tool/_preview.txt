@@ -1,0 +1,60 @@
+import 'dart:io';
+
+String esc(String s) => s
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;');
+
+String inline(String s) {
+  var out = esc(s);
+  out = out.replaceAllMapped(
+      RegExp(r'`([^`]+)`'), (m) => '<code>${m[1]}</code>');
+  out = out.replaceAllMapped(RegExp(r'\*\*([^*]+)\*\*'), (m) => '<b>${m[1]}</b>');
+  return out;
+}
+
+String mdToHtml(String md) {
+  final b = StringBuffer();
+  final lines = md.replaceAll('\r\n', '\n').split('\n').toList();
+  var i = 0;
+  var inList = false;
+
+  void closeList() {
+    if (inList) {
+      b.write('</ul>\n');
+      inList = false;
+    }
+  }
+
+  bool isSeparator(String l) {
+    final t = l.trim();
+while (i < lines.length) {
+    final raw = lines[i];
+    final t = raw.trim();
+
+    if (t.startsWith('|')) {
+      final rows = <String>[];
+      while (i < lines.length && lines[i].trim().startsWith('|')) {
+        rows.add(lines[i].trim());
+        i++;
+      }
+      closeList();
+      final header = <String>[];
+      final body = <List<String>>[];
+      for (final r in rows) {
+        if (isSeparator(r)) continue;
+        final inner = r.substring(1, r.length - 1);
+        final parts = inner.split('|').map((x) => x.trim()).toList();
+        if (header.isEmpty) {
+          header.addAll(parts);
+        } else {
+          body.add(parts);
+        }
+      }
+      b.write('<table>\n<thead><tr>');
+      for (final h in header) {
+        b.write('<th>${inline(h)}</th>');
+      }
+      b.write('</tr></thead>\n<tbody>\n');
+      for (final row in body) {
+        b.write('<tr>');

@@ -1,0 +1,79 @@
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin"
+}
+
+// ── توقيع إصدار الإصدار (release) ────────────────────────────────────────────
+// لا يُبنى release إلا بمفتاح توقيع حقيقي: البناء بمفتاح التصحيح العام (debug)
+// يجعل أي APK موقّع بنفس المفتاح المعروف يُقبل كتحديث شرعي فوق التطبيق.
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file("key.properties")
+def hasReleaseKey = keystorePropertiesFile.exists()
+if (hasReleaseKey) {
+    keystorePropertiesFile.withInputStream { keystoreProperties.load(it) }
+}
+
+android {
+    namespace "com.alk.health"
+    compileSdk flutter.compileSdkVersion
+    ndkVersion flutter.ndkVersion
+
+    compileOptions {
+        coreLibraryDesugaringEnabled true
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_11
+    }
+
+    defaultConfig {
+        applicationId "com.alk.health"
+        minSdk 26
+        targetSdk flutter.targetSdkVersion
+        versionCode flutter.versionCode
+        versionName flutter.versionName
+    }
+
+    signingConfigs {
+        if (hasReleaseKey) {
+            release {
+                keyAlias keystoreProperties["keyAlias"]
+                keyPassword keystoreProperties["keyPassword"]
+                storeFile file(keystoreProperties["storeFile"])
+                storePassword keystoreProperties["storePassword"]
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            if (!hasReleaseKey) {
+                throw new GradleException(
+                    "\n===== ALK: مفتاح توقيع الإصدار مفقود =====\n" +
+                    "انسخ android/key.properties.example إلى android/key.properties " +
+                    "واملأ القيم، ثم ولّد المفتاح بالأمر:\n" +
+                    "  keytool -genkey -v -keystore alk-release.jks -keyalg RSA " +
+                    "-keysize 2048 -validity 10000 -alias alk\n" +
+                    "تفاصيل كاملة: دليل-التوقيع-والأمان.md\n" +
+                    "(لا يوضع ملف المفتاح ولا كلمات المرور في المستودع أبداً.)\n")
+            }
+            signingConfig signingConfigs.release
+            // تصغير وتقليص الموارد: لا تُشحن أسماء/شيفرة غير مستخدمة في APK.
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"),
+                    "proguard-rules.pro"
+        }
+    }
+}
+
+flutter {
+    source '../..'
+}
+
+dependencies {
+    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:2.1.4"
+}

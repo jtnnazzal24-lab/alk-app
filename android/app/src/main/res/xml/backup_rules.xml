@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 11 وما قبله: لا يُنسَخ أي ملف أو تفضيل يحتوي بيانات المريض
+     (ملف البيانات المشفَّر، صور الأدوية، المرفقات الطبية، ترجمة الواجهة،
+     وتفضيلات التطبيق) في النسخ الاحتياطي السحابي أو نقل الجهاز. -->
+<full-backup-content>
+    <exclude domain="file" path="alk-data/" />
+    <exclude domain="file" path="alk-medication-images/" />
+    <exclude domain="file" path="alk-medical-attachments/" />
+    <exclude domain="file" path="alk-dictionary/" />
+    <exclude domain="sharedpref" path="." />
+    <exclude domain="database" path="." />
+</full-backup-content>

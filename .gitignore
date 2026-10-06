@@ -1,0 +1,37 @@
+# ── Dart / Flutter ───────────────────────────────────────────────────────────
+.dart_tool/
+.packages
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+coverage/
+
+# ── أسرار التوقيع (يجب ألا تُرفع أبداً) ─────────────────────────────────────
+android/key.properties
+*.jks
+*.keystore
+*.p12
+*.pem
+
+# ── إعدادات محلية (تحتوي مسار جهاز المطوّر) ─────────────────────────────────
+android/local.properties
+android/.gradle/
+local.properties
+
+# ── iOS ─────────────────────────────────────────────────────────────────────
+ios/Flutter/Generated.xcconfig
+ios/Flutter/ephemeral/
+ios/Flutter/flutter_export_environment.sh
+ios/Pods/
+
+# ── مخرجات البناء والنشر ────────────────────────────────────────────────────
+hosting/*.apk
+update/*.apk
+*.apk
+*.aab
+
+# ── محرّر/أدوات ─────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+__pycache__/
+*.pyc

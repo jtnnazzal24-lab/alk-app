@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Launcher shortcuts. The static shortcut lets users (and the Google
+     Assistant) open ALK directly on the voice-assistant listening screen:
+     "Hey Google, افتح المساعد الصوتي في ALK" or long-press the app icon. -->
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="voice_assistant"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/voice_shortcut_short"
+        android:shortcutLongLabel="@string/voice_shortcut_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.alk.health"
+            android:targetClass="com.alk.health.MainActivity">
+            <extra
+                android:name="screen"
+                android:value="voice" />
+        </intent>
+    </shortcut>
+</shortcuts>
