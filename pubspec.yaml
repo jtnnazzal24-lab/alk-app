@@ -1,8 +1,7 @@
-name: alk_flutter
-description: "ALK — standalone medication & health companion (Flutter port of the React Native app, with full local-data migration)."
+﻿name: alk_flutter
+description: "ALK â€” standalone medication & health companion (Flutter port of the React Native app, with full local-data migration)."
 publish_to: "none"
-version: 1.0.1+2
-
+version: 1.0.2+3
 environment:
   sdk: ">=3.5.0 <4.0.0"
 
@@ -15,7 +14,7 @@ dependencies:
   # State management (Provider mirrors the RN Context-based store)
   provider: ^6.1.2
 
-  # Local persistence — stores the SAME JSON schema as the RN app (sandy-health-local-v1)
+  # Local persistence â€” stores the SAME JSON schema as the RN app (sandy-health-local-v1)
   shared_preferences: ^2.3.2
   path_provider: ^2.1.4
   path: ^1.9.0
@@ -37,10 +36,10 @@ dependencies:
 
   # Security & system
   local_auth: ^2.2.0
-  # تخزين آمن للأسرار (Android Keystore / iOS Keychain): مفتاح DeepSeek
-  # ومفتاح تشفير ملف بيانات المريض — لا يبقى أي سرّ في SharedPreferences.
+  # طھط®ط²ظٹظ† ط¢ظ…ظ† ظ„ظ„ط£ط³ط±ط§ط± (Android Keystore / iOS Keychain): ظ…ظپطھط§ط­ DeepSeek
+  # ظˆظ…ظپطھط§ط­ طھط´ظپظٹط± ظ…ظ„ظپ ط¨ظٹط§ظ†ط§طھ ط§ظ„ظ…ط±ظٹط¶ â€” ظ„ط§ ظٹط¨ظ‚ظ‰ ط£ظٹ ط³ط±ظ‘ ظپظٹ SharedPreferences.
   flutter_secure_storage: ^9.2.2
-  # تشفير AES-256-GCM لملف بيانات المريض على الجهاز.
+  # طھط´ظپظٹط± AES-256-GCM ظ„ظ…ظ„ظپ ط¨ظٹط§ظ†ط§طھ ط§ظ„ظ…ط±ظٹط¶ ط¹ظ„ظ‰ ط§ظ„ط¬ظ‡ط§ط².
   cryptography: ^2.7.0
   url_launcher: ^6.3.0
   permission_handler: ^11.3.1
@@ -55,10 +54,10 @@ dependencies:
   # HTTP client for optional DeepSeek AI chat (when an API key is provided)
   http: ^1.2.2
 
-  # Health Connect (Android) — reads vitals from synced wearables
+  # Health Connect (Android) â€” reads vitals from synced wearables
   health: ^13.3.1
 
-  # Bluetooth LE — direct connection to certified chronic-disease meters
+  # Bluetooth LE â€” direct connection to certified chronic-disease meters
   # (blood-pressure monitors, glucose meters, pulse oximeters) using the
   # standard Bluetooth SIG GATT profiles.
   flutter_blue_plus: ^1.32.12
@@ -70,7 +69,7 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^4.0.0
 
-  # توليد أيقونات التطبيق من assets/images/app_icon.png (شغّل: dart run flutter_launcher_icons)
+  # طھظˆظ„ظٹط¯ ط£ظٹظ‚ظˆظ†ط§طھ ط§ظ„طھط·ط¨ظٹظ‚ ظ…ظ† assets/images/app_icon.png (ط´ط؛ظ‘ظ„: dart run flutter_launcher_icons)
   flutter_launcher_icons: ^0.13.1
 
 flutter_launcher_icons:
@@ -85,7 +84,7 @@ flutter:
   assets:
     - assets/icon/
     - assets/images/
-    # قاموس مفردات التطبيق (عربي) — يُقرأ عند تجهيز الترجمة للغات الجهاز الأخرى
+    # ظ‚ط§ظ…ظˆط³ ظ…ظپط±ط¯ط§طھ ط§ظ„طھط·ط¨ظٹظ‚ (ط¹ط±ط¨ظٹ) â€” ظٹظڈظ‚ط±ط£ ط¹ظ†ط¯ طھط¬ظ‡ظٹط² ط§ظ„طھط±ط¬ظ…ط© ظ„ظ„ط؛ط§طھ ط§ظ„ط¬ظ‡ط§ط² ط§ظ„ط£ط®ط±ظ‰
     - assets/source_dictionary.json
 
 

@@ -132,14 +132,37 @@ if ($Type -eq 'auto') {
 } else {
     $resolved = $Type
 }
-$next = Get-NextVersion -Current $cur.Version -Change $resolved -Build $cur.Build
 
-$majorBump = ([int]($next.Version -split '\.')[0]) -gt ([int]($cur.Version -split '\.')[0])
-Write-Host "  change  : $resolved  ->  $($next.Tag)" -ForegroundColor Green
-Write-Host "  new     : $($next.Full)" -ForegroundColor Green
+# Phase detection: phase 1 bumps pubspec.yaml but does not commit; phase 2 is
+# re-run with -Publish. Reuse the pending version instead of bumping twice
+# (which would wrongly turn 1.0.2 into 1.0.3).
+$bumped = $false
+$committedVer = $null
+foreach ($line in (Invoke-GitQuiet @('-C', $repoRoot, 'show', 'HEAD:pubspec.yaml'))) {
+    if ($line -match '^version:\s*(\S+)') { $committedVer = $Matches[1]; break }
+}
+if ($committedVer -and (($committedVer -split '\+')[0] -ne ($cur.Full -split '\+')[0])) {
+    $bumped = $true
+}
+
+if ($bumped) {
+    $next = @{ Version = $cur.Version; Tag = "v$($cur.Version)"; Full = $cur.Full; Build = $cur.Build }
+    Write-Host "  note    : pubspec already bumped (HEAD=$committedVer)" -ForegroundColor Yellow
+    Write-Host "  change  : $resolved  ->  $($next.Tag)  (reusing pending version)" -ForegroundColor Green
+} else {
+    $next = Get-NextVersion -Current $cur.Version -Change $resolved -Build $cur.Build
+    Write-Host "  change  : $resolved  ->  $($next.Tag)" -ForegroundColor Green
+    Write-Host "  new     : $($next.Full)" -ForegroundColor Green
+}
 Write-Host ''
 
-if ($PSCmdlet.ShouldProcess("pubspec.yaml $($cur.Full) -> $($next.Full)", 'Bump version')) {
+if ($bumped) {
+    if ($WhatIfPreference) {
+        Write-Host "  (dry run - pubspec.yaml already $($cur.Full))" -ForegroundColor DarkGray
+        return
+    }
+    Write-Host "  pubspec.yaml already at $($cur.Full) - not modified" -ForegroundColor DarkGray
+} elseif ($PSCmdlet.ShouldProcess("pubspec.yaml $($cur.Full) -> $($next.Full)", 'Bump version')) {
     (Get-Content -Path $pubspec -Raw) -replace "(?m)^version:\s*\S+\s*$", "version: $($next.Full)" |
         Set-Content -Path $pubspec -NoNewline -Encoding UTF8
     Write-Host "  updated pubspec.yaml -> version: $($next.Full)" -ForegroundColor Green
